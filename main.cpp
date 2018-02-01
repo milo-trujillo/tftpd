@@ -8,11 +8,12 @@
 #include <netinet/in.h> // INADDR_ANY
 
 #include "constants.h"
+#include "write.h"
 
 #define BUFFER_SIZE 256
 
 // Parse that datagram, figure out what type of request it is
-void processRequest(char* req)
+void processRequest(char* req, struct sockaddr_in client)
 {
 	char type = req[1];
 	char* filename = strtok(req + 2, "\0");
@@ -25,14 +26,14 @@ void processRequest(char* req)
 		pid_t pid = fork();
 		if( pid == 0 )
 		{
-			char* fname = malloc(fnamelength);
-			char* m = malloc(modelength);
+			char* fname = (char*)malloc(fnamelength);
+			char* m = (char*)malloc(modelength);
 			strncpy(fname, filename, fnamelength);
 			strncpy(m, mode, modelength);
 			if( type == RRQ )
 				printf("Would trigger read handler for '%s'\n", fname);
 			else
-				printf("Would trigger write handler for '%s'\n", fname);
+				writeRequest(fname, mode, client);
 			exit(EXIT_SUCCESS);
 		}
 	} else {
@@ -50,7 +51,7 @@ void handleNewConnection(int sock)
 	bzero(&client, clientSize);
 	read = recvfrom(sock, buffer, BUFFER_SIZE-1, 0, (struct sockaddr*)&client, &clientSize);
 	buffer[read] = '\0';
-	processRequest(buffer);
+	processRequest(buffer, client);
 }
 
 // Sets up original listening socket
