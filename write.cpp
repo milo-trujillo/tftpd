@@ -21,12 +21,11 @@
 
 void sendAck(int socket, struct sockaddr_in client, int block)
 {
-	char ack[4];
+	char ack[4] = "\x00\x04\x00";
+	unsigned short blockno = htons(block);
+	ack[2] = ((char*)&blockno)[0];
+	ack[3] = ((char*)&blockno)[1];
 	socklen_t clientLen = sizeof(client);
-	unsigned char b1 = 0x00FF & block;
-	unsigned char b2 = (0x00FF & block) >> 8;
-	bzero(ack, 4);
-	sprintf(ack+1, "\x04%c%c", b2, b1);
 	sendto(socket, ack, 4, 0, (struct sockaddr*)&client, clientLen);
 }
 
