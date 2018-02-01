@@ -10,7 +10,7 @@ endif
 CFLAGS += -ggdb -Wall -I/usr/local/include #-Rpass=inline
 LDFLAGS += -L/usr/local/lib
 
-OBJS = main.o daemonize.o
+OBJS = main.o
 
 all: $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $(PROGNAME) $(OBJS)
