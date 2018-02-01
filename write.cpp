@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <strings.h> // bzero
+#include <strings.h> // bzero,strlen (Unix systems)
+#include <string.h> // bzero,strlen (Linux systems)
 #include <sys/socket.h>
 #include <sys/select.h>
 #include <netinet/in.h> // INADDR_ANY
@@ -83,7 +84,6 @@ void blockOnDataAvailable(int socket, struct sockaddr_in client, int blocksSeen)
 
 void writeRequest(char* filename, char* mode, struct sockaddr_in client)
 {
-	int timeouts = 0;
 	int blocksSeen = 0; // Track the last known block
 	int sock = socket(AF_INET, SOCK_DGRAM, 0);
 	socklen_t clientLen = sizeof(client);
