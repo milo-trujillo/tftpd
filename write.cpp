@@ -101,7 +101,6 @@ void writeRequest(char* filename, char* mode, struct sockaddr_in client)
 
 		// We got an actual block, let's process it
 		ssize_t bytes = recvfrom(sock, block, DATABLOCK_SIZE, 0, (struct sockaddr*)&client, &clientLen);
-		timeouts = 0;
 		opcode  = ntohs(*(unsigned short*)(block));   // Dark magic
 		blockno = ntohs(*(unsigned short*)(block+2)); // from the deeps
 		//printf("Got block #%hu, %ld long, opcode %hu\n", blockno, bytes, opcode);
