@@ -49,9 +49,9 @@ int checkFileError(int num)
     }
 }
 
+// Removes illegal characters from filepath
 std::string sanitizePath(std::string path)
 {
-    std::cout << path << std::endl;
     std::string removeChars = "\\/:?\"<>| ";
     for (int c = 0; c < (int)path.length(); c++)
     {
@@ -61,10 +61,8 @@ std::string sanitizePath(std::string path)
             path[c] = '\0';
         }
     }
-    std::cout << path << std::endl;
     return path;
 }
-
 
 
 FILE *openFileRead(char * filename)
@@ -72,18 +70,15 @@ FILE *openFileRead(char * filename)
     std::string cleanFilename = sanitizePath(filename);
 
     FILE * openFile  = NULL;
-
     openFile = fopen(cleanFilename.c_str(), "r");
-
     return openFile;
-
 }
 
 FILE *openFileWrite(char * filename)
 {
     std::string cleanFilename = sanitizePath(filename);
+
     FILE * openFile  = NULL;
     openFile = fopen(cleanFilename.c_str(), "w");
-
     return openFile;
 }
