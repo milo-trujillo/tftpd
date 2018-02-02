@@ -9,6 +9,7 @@
 #include <netinet/in.h> // INADDR_ANY
 
 #include "constants.h"
+#include "filesystem.h"
 #include "write.h"
 
 #define BUFFER_SIZE 256
@@ -32,7 +33,9 @@ void processRequest(char* req, struct sockaddr_in client)
 			strncpy(fname, filename, fnamelength);
 			strncpy(m, mode, modelength);
 			if( type == RRQ )
+			{
 				printf("Would trigger read handler for '%s'\n", fname);
+			}
 			else
 				writeRequest(fname, mode, client);
 			exit(EXIT_SUCCESS);

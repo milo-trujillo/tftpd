@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <strings.h> // bzero,strlen (Unix systems)
 #include <string.h> // bzero,strlen (Linux systems)
+#include <string>
 #include <iostream>
 #include <errno.h>
 
@@ -48,11 +49,31 @@ int checkFileError(int num)
     }
 }
 
+std::string sanitizePath(std::string path)
+{
+    std::cout << path << std::endl;
+    std::string removeChars = "\\/:?\"<>| ";
+    for (int c = 0; c < (int)path.length(); c++)
+    {
+        bool found = removeChars.find(path[c]) != std::string::npos;
+        if (found)
+        {
+            path[c] = '\0';
+        }
+    }
+    std::cout << path << std::endl;
+    return path;
+}
+
+
 
 FILE *openFileRead(char * filename)
 {
+    std::string cleanFilename = sanitizePath(filename);
+
     FILE * openFile  = NULL;
-    openFile = fopen(filename, "r");
+
+    openFile = fopen(cleanFilename.c_str(), "r");
 
     return openFile;
 
@@ -60,8 +81,9 @@ FILE *openFileRead(char * filename)
 
 FILE *openFileWrite(char * filename)
 {
+    std::string cleanFilename = sanitizePath(filename);
     FILE * openFile  = NULL;
-    openFile = fopen(filename, "w");
+    openFile = fopen(cleanFilename.c_str(), "w");
 
     return openFile;
 }
