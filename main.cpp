@@ -11,6 +11,7 @@
 #include "constants.h"
 #include "filesystem.h"
 #include "write.h"
+#include "read.h"
 
 #define BUFFER_SIZE 256
 
@@ -34,7 +35,7 @@ void processRequest(char* req, struct sockaddr_in client)
 			strncpy(m, mode, modelength);
 			if( type == RRQ )
 			{
-				printf("Would trigger read handler for '%s'\n", fname);
+				readRequest(fname, mode, client);
 			}
 			else
 				writeRequest(fname, mode, client);
