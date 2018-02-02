@@ -4,7 +4,7 @@ PROGNAME = tftpd
 ifeq (, $(shell which clang 2>/dev/null))
 CXX?= g++
 else
-CXX?= clang++
+CXX= clang++
 endif
 
 CFLAGS += -ggdb -Wall -I/usr/local/include #-Rpass=inline
