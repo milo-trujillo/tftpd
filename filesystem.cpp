@@ -7,44 +7,71 @@
 #include <errno.h>
 
 #include "constants.h"
+#include "filesystem.h"
 
 
-// When passed a error value (errno), this function will return the appropriate
-// TFTP error number related to file operations
-int checkFileError(int num)
+
+// When passed a error value (errno), this function will return a fileError
+// struct which contains the error message and error numbers
+fileError checkFileError(int num)
 {
+    fileError error;
     switch(num)
     {
         case 1:
             //Operation not permitted
-            return DENIED;
+            error.sysError = num;
+            error.tftpError = DENIED;
+            error.msg = "Operation not permitted.";
+            return error;
             break;
         case 2:
             //File does not exist
-            return NOTFOUND;
+            error.sysError = num;
+            error.tftpError = NOTFOUND;
+            error.msg = "File does not exist.";
+            return error;
             break;
         case 5:
             //IO Error
-            return UNDEF;
+            error.sysError = num;
+            error.tftpError = UNDEF;
+            error.msg = "IO Error.";
+            return error;
             break;
         case 13:
             //permission denied
-            return DENIED;
+            error.sysError = num;
+            error.tftpError = DENIED;
+            error.msg = "Permission Denied.";
+            return error;
             break;
         case 17:
             //file exists
-            return FILEEXISTS;
+            error.sysError = num;
+            error.tftpError = FILEEXISTS;
+            error.msg = "File already exists.";
+            return error;
             break;
         case 24:
             //Too many open files
-            return ILLEGAL;
+            error.sysError = num;
+            error.tftpError = ILLEGAL;
+            error.msg = "Too many open files.";
+            return error;
             break;
         case 28:
             //no space left
-            return ILLEGAL;
+            error.sysError = num;
+            error.tftpError = ILLEGAL;
+            error.msg = "No space left on disk.";
+            return error;
             break;
         default:
-            return UNDEF;
+            error.sysError = num;
+            error.tftpError = UNDEF;
+            error.msg = "Undefined error.";
+            return error;
             break;
     }
 }
