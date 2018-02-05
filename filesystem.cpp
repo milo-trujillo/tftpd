@@ -115,6 +115,6 @@ FILE *openFileWrite(char * filename)
     std::string cleanFilename = sanitizePath(filename);
 
     FILE * openFile  = NULL;
-    openFile = fopen(cleanFilename.c_str(), "wb");
+    openFile = fopen(cleanFilename.c_str(), "wbx");
     return openFile;
 }
