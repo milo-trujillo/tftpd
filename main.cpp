@@ -7,12 +7,24 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h> // INADDR_ANY
+#include <signal.h>
 
 #include "constants.h"
 #include "filesystem.h"
 #include "write.h"
 
 #define BUFFER_SIZE 256
+
+// Handle child exits
+void childCleanup(int signo)
+{
+	pid_t pid;
+	int stat;
+
+	while( (pid = waitpid(-1, &stat, WNOHANG)) > 0 )
+		printf("Child %d terminated\n", pid);
+	return;
+}
 
 // Parse that datagram, figure out what type of request it is
 void processRequest(char* req, struct sockaddr_in client)
@@ -82,6 +94,8 @@ int main()
 		getsockname(udpServerSock, (struct sockaddr*)&udpServerStruct, &sa_len);
 		printf("Bound to UDP port: %d\n", ntohs(udpServerStruct.sin_port));
 	}
+
+	signal(SIGCHLD, childCleanup);
 
 	while(1)
 		handleNewConnection(udpServerSock);
