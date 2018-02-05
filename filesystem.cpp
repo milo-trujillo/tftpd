@@ -106,7 +106,7 @@ FILE *openFileRead(char * filename)
     std::string cleanFilename = sanitizePath(filename);
 
     FILE * openFile  = NULL;
-    openFile = fopen(cleanFilename.c_str(), "r");
+    openFile = fopen(cleanFilename.c_str(), "rb");
     return openFile;
 }
 
@@ -115,6 +115,6 @@ FILE *openFileWrite(char * filename)
     std::string cleanFilename = sanitizePath(filename);
 
     FILE * openFile  = NULL;
-    openFile = fopen(cleanFilename.c_str(), "w");
+    openFile = fopen(cleanFilename.c_str(), "wb");
     return openFile;
 }
