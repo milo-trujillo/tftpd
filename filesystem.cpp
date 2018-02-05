@@ -4,6 +4,7 @@
 #include <string.h> // bzero,strlen (Linux systems)
 #include <string>
 #include <iostream>
+#include <stdio.h>
 #include <errno.h>
 
 #include "constants.h"
@@ -22,55 +23,63 @@ fileError checkFileError(int num)
             //Operation not permitted
             error.sysError = num;
             error.tftpError = DENIED;
-            error.msg = "Operation not permitted.";
+            strcpy(error.msg, "Operation not permitted.");
+            error.headerNum = 0;
             return error;
             break;
         case 2:
             //File does not exist
             error.sysError = num;
             error.tftpError = NOTFOUND;
-            error.msg = "File does not exist.";
+            strcpy(error.msg, "File does not exist.");
+            error.headerNum = 1;
             return error;
             break;
         case 5:
             //IO Error
             error.sysError = num;
             error.tftpError = UNDEF;
-            error.msg = "IO Error.";
+            strcpy(error.msg, "IO Error.");
+            error.headerNum = 2;
             return error;
             break;
         case 13:
             //permission denied
             error.sysError = num;
             error.tftpError = DENIED;
-            error.msg = "Permission Denied.";
+            strcpy(error.msg, "Permission Denied.");
+            error.headerNum = 3;
             return error;
             break;
         case 17:
             //file exists
             error.sysError = num;
             error.tftpError = FILEEXISTS;
-            error.msg = "File already exists.";
+            strcpy(error.msg, "File already exists.");
+            error.headerNum = 4;
             return error;
             break;
         case 24:
             //Too many open files
             error.sysError = num;
             error.tftpError = ILLEGAL;
-            error.msg = "Too many open files.";
+            strcpy(error.msg, "Too many open files.");
+            error.headerNum = 5;
             return error;
             break;
         case 28:
             //no space left
             error.sysError = num;
             error.tftpError = ILLEGAL;
-            error.msg = "No space left on disk.";
+            strcpy(error.msg, "No space left on disk.");
+            error.headerNum = 6;
             return error;
             break;
         default:
             error.sysError = num;
             error.tftpError = UNDEF;
-            error.msg = "Undefined error.";
+            strcpy(error.msg, "Undefined error.");
+            error.headerNum = 7;
             return error;
             break;
     }
