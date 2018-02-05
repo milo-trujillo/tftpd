@@ -7,7 +7,7 @@ else
 CXX= clang++
 endif
 
-CFLAGS += -ggdb -Wall -I/usr/local/include #-Rpass=inline
+CFLAGS += -ggdb -Wall -I/usr/local/include -std=c++11 #-Rpass=inline
 LDFLAGS += -L/usr/local/lib
 
 OBJS = main.o write.o filesystem.o
