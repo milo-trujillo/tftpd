@@ -7,8 +7,10 @@
 #include <netinet/in.h> // INADDR_ANY
 #include <arpa/inet.h> // ntohs
 #include <sys/time.h>
+#include <errno.h>
 
 #include "constants.h"
+#include "filesystem.h"
 #include "write.h"
 
 /*
@@ -35,13 +37,12 @@ void sendAck(int socket, struct sockaddr_in client, int block)
 FILE* startFilesystem(int socket, struct sockaddr_in client, char* filename)
 {
 	socklen_t clientLen = sizeof(client);
-	//FILE* f = NULL;
-	FILE* f = (FILE*)1;
-	// f = openFileWrite(filename);
+	FILE* f = openFileWrite(filename);
 	if( f <= 0 )
 	{
-		char error[] = "\x00\x05\x00\x00Something went wrong";
-		sendto(socket, error, strlen(error+4)+4, 0, (struct sockaddr*)&client, clientLen);
+		fileError err = checkFileError(errno);
+		char* errMsg = err.header[err.headerNum];
+		sendto(socket, errMsg, strlen(errMsg+4)+4, 0, (struct sockaddr*)&client, clientLen);
 		exit(EXIT_FAILURE);
 	} else {
 		sendAck(socket, client, 0);
@@ -84,6 +85,7 @@ void blockOnDataAvailable(int socket, struct sockaddr_in client, int blocksSeen)
 
 void writeRequest(char* filename, char* mode, struct sockaddr_in client)
 {
+	const int headerLength = 4;
 	int blocksSeen = 0; // Track the last known block
 	int sock = socket(AF_INET, SOCK_DGRAM, 0);
 	socklen_t clientLen = sizeof(client);
@@ -97,21 +99,23 @@ void writeRequest(char* filename, char* mode, struct sockaddr_in client)
 		unsigned short opcode = 0;
 		unsigned short blockno = 0;
 
+		bzero(block, DATABLOCK_SIZE);
 		blockOnDataAvailable(sock, client, blocksSeen);
 
 		// We got an actual block, let's process it
 		ssize_t bytes = recvfrom(sock, block, DATABLOCK_SIZE, 0, (struct sockaddr*)&client, &clientLen);
+		ssize_t datalength = bytes - headerLength; // Strip the headers
 		opcode  = ntohs(*(unsigned short*)(block));   // Dark magic
 		blockno = ntohs(*(unsigned short*)(block+2)); // from the deeps
-		//printf("Got block #%hu, %ld long, opcode %hu\n", blockno, bytes, opcode);
 		if( opcode == DATA && blockno == blocksSeen + 1 )
 		{
 			blocksSeen++;
+			fwrite(block + headerLength, 1, datalength, f);
+			fflush(f);
 			sendAck(sock, client, blockno);
 			if( bytes < DATABLOCK_SIZE )
 			{
-				//printf("Final block, killing child\n");
-				//fclose(f);
+				fclose(f);
 				exit(EXIT_SUCCESS);
 			}
 		} else if( opcode != DATA ) {
