@@ -24,7 +24,7 @@ struct fileError {
 };
 
 fileError checkFileError(int num);
-std::string sanitizePath(std::string path);
+std::string sanitizePath(char * path);
 FILE *openFileRead(char * filename);
 FILE *openFileWrite(char * filename);
 
