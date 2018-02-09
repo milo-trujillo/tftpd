@@ -86,35 +86,48 @@ fileError checkFileError(int num)
 }
 
 // Removes illegal characters from filepath
-std::string sanitizePath(std::string path)
+std::string sanitizePath(char * path)
 {
-    std::string removeChars = "\\/:?\"<>| ";
-    for (int c = 0; c < (int)path.length(); c++)
+    // Blacklist of chars to remove
+    std::string removeChars = "\\/:?\"<>|$* ";
+
+    std::string pathString = path; //Convert to C++ String
+
+    // DEBUG
+    std::cout << "Sanitize In: " << pathString << std::endl;
+
+    for (int c = 0; c < (int)pathString.length(); c++)
     {
-        bool found = removeChars.find(path[c]) != std::string::npos;
+        bool found = (removeChars.find(pathString[c]) != std::string::npos);
         if (found)
         {
-            path[c] = '\0';
+
+            pathString = pathString.replace(c, 1, "_");
         }
     }
-    return path;
+    // DEBUG
+    std::cout << "Sanitize out: " << pathString << std::endl;
+
+    return pathString;
 }
 
 
 FILE *openFileRead(char * filename)
 {
-    std::string cleanFilename = sanitizePath(filename);
+    std::string path = sanitizePath(filename); //Santitize path
+    strcpy(filename, path.c_str()); //Convert back to C String
 
     FILE * openFile  = NULL;
-    openFile = fopen(cleanFilename.c_str(), "rb");
+    openFile = fopen(filename, "rb");
     return openFile;
 }
 
 FILE *openFileWrite(char * filename)
 {
-    std::string cleanFilename = sanitizePath(filename);
+    std::string path = sanitizePath(filename); //Santitize path
+    strcpy(filename, path.c_str()); //Convert back to C String
 
     FILE * openFile  = NULL;
-    openFile = fopen(cleanFilename.c_str(), "wbx");
+    openFile = fopen(filename, "wbx");
     return openFile;
 }
