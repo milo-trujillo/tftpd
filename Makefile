@@ -1,4 +1,4 @@
-PROGNAME = tftpd
+PROGNAME = tftp.out
 
 # Use user-specified compiler, or default to clang if possible, else gcc
 ifeq (, $(shell which clang 2>/dev/null))
