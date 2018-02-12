@@ -1,4 +1,4 @@
-PROGNAME = tftpd
+PROGNAME = tftp.out
 
 # Use user-specified compiler, or default to clang if possible, else gcc
 ifeq (, $(shell which clang 2>/dev/null))
@@ -10,7 +10,7 @@ endif
 CFLAGS += -ggdb -Wall -I/usr/local/include -std=c++11 #-Rpass=inline
 LDFLAGS += -L/usr/local/lib
 
-OBJS = main.o write.o filesystem.o
+OBJS = main.o write.o read.o filesystem.o
 
 all: $(OBJS)
 	$(CXX) $(CFLAGS) $(LDFLAGS) -o $(PROGNAME) $(OBJS)

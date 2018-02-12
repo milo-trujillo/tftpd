@@ -4,8 +4,8 @@
 #define FALSE 0
 #define TRUE 1
 
-// After 5 seconds, abort
-#define MAX_TIMEOUT 5
+// After 10 seconds, abort
+#define MAX_TIMEOUT 10
 
 // TFTP OpCodes
 #define RRQ   1
