@@ -26,7 +26,7 @@ FILE* getFile(int socket, struct sockaddr_in client, char* filename)
 	if( f <= 0 )
 	{
 		error = checkFileError(errno);
-		sendto(socket, error.header[error.headerNum], strlen(error.header[error.headerNum]+4)+4, 0, (struct sockaddr*)&client, clientLen);
+		sendto(socket, error.header[error.headerNum], strlen(error.header[error.headerNum]+4)+4+1, 0, (struct sockaddr*)&client, clientLen);
 		fclose(f);
 		exit(EXIT_FAILURE);
 	}
