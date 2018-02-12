@@ -15,7 +15,7 @@
 
 
 
-// First, check whether we're allowed to read the file, etc
+// First, check whether the file exists and we're allowed to read it, etc
 // if we aren't, then send an error to the client and abort
 FILE* getFile(int socket, struct sockaddr_in client, char* filename)
 {
@@ -52,21 +52,20 @@ void waitForAck(int socket, struct sockaddr_in client)
 		else if( FD_ISSET(socket, &inputs) ) // ACK packet arrived
 			return;
 	}
-	printf("Connection timed out\n");
+	printf("Connection timed out waiting for ACK\n");
 	exit(EXIT_SUCCESS);
 }
 
-
-void sendData(char buffer[], int read, int blockNumber, int sock, struct sockaddr_in client)
+// Helper function to handle assembling and sending the data packet
+void sendData(char buffer[], unsigned int read, int blockNumber, int sock, struct sockaddr_in client)
 {
 	char head[4] = "\x00\x03\x00";
 	unsigned short blockN = htons(blockNumber);
 	head[2] = ((char*)&blockN)[0];
 	head[3] = ((char*)&blockN)[1];
 
-	char packetData[4 + strlen(buffer) + 2];
-	bzero(packetData, 4 + strlen(buffer) + 2);
-
+	char packetData[4 + read];
+	bzero(packetData, 4 + read);
 
     // Stuff header info into the packet buffer
 	for (int i = 0; i < 4; i++)
@@ -80,17 +79,17 @@ void sendData(char buffer[], int read, int blockNumber, int sock, struct sockadd
 		packetData[i] = buffer[i-4];
 	}
 
-
 	socklen_t clientLen = sizeof(client);
-	int ret = sendto(sock, packetData, 4+strlen(buffer), 0, (struct sockaddr*)&client, clientLen);
-	std::cout << "RET=" << ret << "\n";
+	int ret = sendto(sock, packetData, read+4, 0, (struct sockaddr*)&client, clientLen);
 	if (ret <= 0) {
-		std::cout << "ERROR SENDING DATA!\n";
+		std::cout << "Error sending data for read request.\n";
 	}
 }
 
 
-void readRequest(char* filename, char* mode, struct sockaddr_in client) {
+// This function plays the primary role in reading and sending file data
+void readRequest(char* filename, char* mode, struct sockaddr_in client)
+{
 
 	char block[DATABLOCK_SIZE];
 
@@ -109,7 +108,9 @@ void readRequest(char* filename, char* mode, struct sockaddr_in client) {
 
     if (f != NULL)
     {
-        int read = 0;
+        unsigned int read = 0;
+
+        // Read 512 byes of data at a time until end of file is reached
         while ((read = fread(buffer, 1, DATABLOCK_SIZE-4, f)) > 0)
         {
 			// Set flag to track that we haven't received an ACK yet
@@ -120,7 +121,6 @@ void readRequest(char* filename, char* mode, struct sockaddr_in client) {
 				// Send packet to client
 				sendData(buffer, read, blockNumber, sock, client);
 
-				std::cout << "WAITING FOR ACK.\n";
 				// Wait for an ACK packet to be sent back
 				waitForAck(sock, client);
 
@@ -129,7 +129,6 @@ void readRequest(char* filename, char* mode, struct sockaddr_in client) {
 				ssize_t bytes = recvfrom(sock, block, DATABLOCK_SIZE, 0, (struct sockaddr*)&client, &clientLen);
 				opcode  = ntohs(*(unsigned short*)(block));   // convert from network byte order
 				acknum = ntohs(*(unsigned short*)(block+2)); // convert from network byte order
-				std::cout << "PACKET RECIEVED. OPCODE: " << opcode << " BLOCK#: " << acknum << std::endl;
 
 				// If the packet we got back was a ACK packet with the correct
 				// block number we can move on to the next packet
@@ -143,13 +142,10 @@ void readRequest(char* filename, char* mode, struct sockaddr_in client) {
         }
 		fclose(f);
 		exit(EXIT_SUCCESS);
+
     } else {
 		printf("Bad file handle!\n");
 		fclose(f);
 		exit(EXIT_FAILURE);
 	}
-
-
-
-
 }
