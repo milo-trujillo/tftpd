@@ -5,6 +5,7 @@
 #include <strings.h> // bzero,strtok (Unix systems)
 #include <string.h> // bzero,strtok (Linux systems)
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <sys/socket.h>
 #include <netinet/in.h> // INADDR_ANY
 #include <signal.h>
