@@ -42,7 +42,7 @@ FILE* startFilesystem(int socket, struct sockaddr_in client, char* filename)
 	{
 		fileError err = checkFileError(errno);
 		char* errMsg = err.header[err.headerNum];
-		sendto(socket, errMsg, strlen(errMsg+4)+4, 0, (struct sockaddr*)&client, clientLen);
+		sendto(socket, errMsg, strlen(errMsg+4)+4+1, 0, (struct sockaddr*)&client, clientLen);
 		exit(EXIT_FAILURE);
 	} else {
 		sendAck(socket, client, 0);
